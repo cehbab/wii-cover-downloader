@@ -12,12 +12,13 @@ using System.Security.Cryptography;
 using System.Runtime.InteropServices;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace WiiCoverDownloader
 {
     public partial class WiiCoverDownloader : Form
     {
-        string VERSION = "3.7";
+        string VERSION = "3.7.2";
 
         string  STARTUP_PATH,
                 DOWNLOAD_PATH,
@@ -34,20 +35,24 @@ namespace WiiCoverDownloader
         string FILE_TO_DOWNLOAD;        
 
         // all used link
-        string        
-        NewWiiCoverDownloaderZip_Link   = "http://wii-cover-downloader.googlecode.com/files/WiiCoverDownloader%20v",       
-        languagesIni_Link               = "http://wii-cover-downloader.googlecode.com/files/languages%20v",                                 
-        _7za920_Link                    = "http://wii-cover-downloader.googlecode.com/files/7za920.exe",
-        tools_Link                      = "http://wii-cover-downloader.googlecode.com/files/tools%20v2.zip",
-        sleep_Link                      = "http://wii-cover-downloader.googlecode.com/files/sleep.exe",
-        wbfs_file_Link                  = "http://wii-cover-downloader.googlecode.com/files/wbfs_file.exe";       
-                 
+        string
+        NewWiiCoverDownloaderZip_Link     = "http://wii-cover-downloader.googlecode.com/files/WiiCoverDownloader%20v",
+        languagesIni_Link                 = "http://wii-cover-downloader.googlecode.com/files/languages%20v",
+        //_7za920_Link                    = "http://wii-cover-downloader.googlecode.com/files/7za920.exe",
+        //tools_Link                      = "http://wii-cover-downloader.googlecode.com/files/tools%20v2.zip",
+        //sleep_Link                      = "http://wii-cover-downloader.googlecode.com/files/sleep.exe",
+        //wbfs_file_Link                  = "http://wii-cover-downloader.googlecode.com/files/wbfs_file.exe",
+
+        new_7za920_Link                   = "https://github.com/cehbab/wii-cover-downloader/raw/master/7za920.exe",
+        new_tools_Link                    = "https://github.com/cehbab/wii-cover-downloader/raw/master/tools%20v3.zip";
+
         bool
         DOWNLOAD_OR_EXE_WORKING, TIME_OUT, USE_PROGRESS_BAR,
         GX_COVER, CFG_COVER, WIIFLOW_COVER,
         LOADER_FOUND,
         WII_GAMES_FOUND, GAMECUBE_GAMES_FOUND, NAND_GAMES_FOUND,
         FORCE_ROOT_CHANGE;
+        //DOWNLOADING_FROM_URL;
 
         long
         FINAL_FILE_SIZE, ACTUAL_FILE_SIZE;
@@ -83,6 +88,8 @@ namespace WiiCoverDownloader
         {
             InitializeComponent();
 
+            ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072; //SecurityProtocolType.Tls12
+
             WiiCoverDownloaderWaitForm.Owner = this;
             WiiCoverDownloaderWaitForm.Show();
             WiiCoverDownloaderWaitForm.Refresh();
@@ -101,7 +108,7 @@ namespace WiiCoverDownloader
             GAMES_ID_FILE = CombinePath(TOOLS_PATH, "GAMES_ID_FILE.txt");
 
             FileDelete(CombinePath(STARTUP_PATH, "WiiCoverDownloaderUpdater.bat"));
-            FileDelete(CombinePath(TOOLS_PATH, "wit.exe")); // no more used
+            //FileDelete(CombinePath(TOOLS_PATH, "wit.exe")); // no more used
             DirectoryClean(DOWNLOAD_PATH);
 
             DOWNLOAD_OR_EXE_WORKING = true;
@@ -117,7 +124,7 @@ namespace WiiCoverDownloader
             FolderCheck();
             ToolsCheck();
             SettingsCheck();
-            VersionCheck();            
+            //VersionCheck();
             LanguageCheck();
             ReloadAppLanguages();
             DevicePathCheck();
@@ -731,12 +738,13 @@ namespace WiiCoverDownloader
         {
             string errorMsg = "WiiCoverDownloader will be closed: tools file are missing or invalid.\n\r\n\rSorry but probably is only a problem on code.google server,\n\rand I can't do anything for resolve this.\n\rI can suggest you to try again (now or later).";
 
+            
             if (!ToolsFileCheck(TOOLS_PATH, "7za920.exe"))
             {
                 if (WiiCoverDownloaderWaitForm.IsHandleCreated)
                     WiiCoverDownloaderWaitForm.labelFirstTime.Text = "...downloading 7za920.exe...";
 
-                if (!executeDownload(_7za920_Link,
+                if (!executeDownload(new_7za920_Link,
                                      CombinePath(TOOLS_PATH, "7za920.exe"),
                                      false))
                 {
@@ -744,13 +752,13 @@ namespace WiiCoverDownloader
                     Environment.Exit(-1);
                 }
             }
-
+            
             if (!ToolsFileCheck(TOOLS_PATH, "sleep.exe") && !ToolsFileCheck(TOOLS_PATH, "wbfs_file.exe"))
             {
                 if (WiiCoverDownloaderWaitForm.IsHandleCreated)
                     WiiCoverDownloaderWaitForm.labelFirstTime.Text = "...downloading tools.zip...";
 
-                if (!executeDownload(tools_Link,
+                if (!executeDownload(new_tools_Link,
                                      CombinePath(TOOLS_PATH, "tools.zip"),
                                      false))
                 {
@@ -775,7 +783,7 @@ namespace WiiCoverDownloader
 
                 FileDelete(CombinePath(TOOLS_PATH, "tools.zip"));
             }
-
+            /*
             if (!ToolsFileCheck(TOOLS_PATH, "sleep.exe"))
             {
                 if (WiiCoverDownloaderWaitForm.IsHandleCreated)
@@ -802,7 +810,8 @@ namespace WiiCoverDownloader
                     MessageBox.Show(errorMsg, "WiiCoverDownloader (Error)", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     Environment.Exit(-1);
                 }
-            }            
+            }
+            */
         }
 
         private bool ToolsFileCheck(string path, string fileToCheck)
@@ -817,7 +826,8 @@ namespace WiiCoverDownloader
                     md5 = "42badc1d2f03a8b1e4875740d3d49336";
                     break;
                 case "tools.zip":
-                    md5 = "2b53a61e50821875ed8b7aab96f40de7";
+                    //md5 = "2b53a61e50821875ed8b7aab96f40de7";
+                    md5 = "635e73229658161d6171c38f3ec7dfc5";
                     break;                    
                 case "sleep.exe":
                     md5 = "1a1075e5e307f3a4b8527110a51ce827";
@@ -1095,14 +1105,14 @@ namespace WiiCoverDownloader
                 Process MyCommandProcess;
 
                 my_command = new ProcessStartInfo("cmd.exe", "/c \"" + program + " " + arguments + "\"");
-               
+
                 my_command.UseShellExecute = true;
                 my_command.RedirectStandardOutput = false;
                 my_command.RedirectStandardInput = false;
                 my_command.RedirectStandardError = false;
                 my_command.CreateNoWindow = true;
-                my_command.WindowStyle = ProcessWindowStyle.Hidden;              
-                my_command.WorkingDirectory = STARTUP_PATH;
+                my_command.WindowStyle = ProcessWindowStyle.Hidden;
+                my_command.WorkingDirectory = WorkingDirectory;//STARTUP_PATH;
                 
                 MyCommandProcess = Process.Start(my_command);
                 MyCommandProcess.WaitForExit();
@@ -1126,7 +1136,7 @@ namespace WiiCoverDownloader
             if (!executeCommand(program,
                                 drive.Substring(0, 2) + " make_info > \"" + GAMES_ID_FILE + "\"",
                                 TOOLS_PATH,
-                                "Unespcted ERROR using wbfs_file.exe..."))
+                                "Unexpected ERROR using wbfs_file.exe..."))
                 return false;
 
             if (!File.Exists(GAMES_ID_FILE))
@@ -1175,7 +1185,6 @@ namespace WiiCoverDownloader
 
         private bool first_line_check(string outputFile)
         {
-
             string[] file = File.ReadAllLines(outputFile);
 
             foreach (string line in file)
@@ -1187,6 +1196,44 @@ namespace WiiCoverDownloader
             }
 
             return true;
+        }
+
+
+        private string GCISO_TITLE(string gciso_path)
+        {
+            string program = "\"" + CombinePath(TOOLS_PATH, "wit.exe") + "\"";
+
+            FileDelete(GAMES_ID_FILE);
+
+            if (!executeCommand(program,
+                                "ID6 \"" + gciso_path + "\" > \"" + GAMES_ID_FILE + "\"",
+                                TOOLS_PATH,
+                                "Unexpected ERROR using wit.exe..."))
+                return null;
+
+            if (!File.Exists(GAMES_ID_FILE))
+                return null;
+
+            string title = read_gciso_title(GAMES_ID_FILE);
+            if (title == null)
+                FileDelete(GAMES_ID_FILE);
+
+            return title;
+        }
+
+        private string read_gciso_title(string outputFile)
+        {
+            string[] file = File.ReadAllLines(outputFile);
+
+            foreach (string line in file)
+            {
+                if (line.Contains("wit: ERROR"))
+                    return null;
+                else
+                    return line;
+            }
+
+            return null;
         }
 
 
@@ -1406,6 +1453,17 @@ namespace WiiCoverDownloader
 
         }
 
+        /*
+        private void Completed(object sender, AsyncCompletedEventArgs e)
+        {
+            DOWNLOADING_FROM_URL = false;
+        }
+
+        private void ProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        {
+        }
+        */
+
         public bool executeDownload(string url, string file_name, bool usePorgressBar)
         {
             MySleep(10);
@@ -1425,6 +1483,7 @@ namespace WiiCoverDownloader
             if (!Directory.Exists(TEMP_PATH))
                 Directory.CreateDirectory(TEMP_PATH);
 
+            /*
             try
             {
                 HttpWebRequest httpWReq = (HttpWebRequest)HttpWebRequest.Create(url);
@@ -1440,6 +1499,37 @@ namespace WiiCoverDownloader
 
                 httpWReq.Abort();
                 httpWRes.Close();
+            }
+            catch
+            {
+                return false;
+            }
+            */
+
+            try
+            {
+                client.Headers.Set(HttpRequestHeader.ContentType, "application/octet-stream");
+
+                Stream stream = client.OpenRead(url);
+
+                if (!StringsContains(client.ResponseHeaders.AllKeys, "Content-Length"))
+                {
+                    stream.Close();
+                    return false;
+                }
+
+                Int64 bytes_total = Convert.ToInt64(client.ResponseHeaders["Content-Length"]);
+
+                if (usePorgressBar)
+                {
+                    USE_PROGRESS_BAR = true;
+                    FINAL_FILE_SIZE = bytes_total;
+                    ACTUAL_FILE_SIZE = 0;
+                }
+                else
+                    USE_PROGRESS_BAR = false;
+
+                stream.Close();
             }
             catch
             {
@@ -1461,7 +1551,6 @@ namespace WiiCoverDownloader
                     Application.DoEvents();
 
                 myStandardDowloadTimer.Stop();
-
             }
             catch// (Exception ex)
             {
@@ -1504,6 +1593,16 @@ namespace WiiCoverDownloader
             return true;
         }
 
+
+        private bool StringsContains(string[] strings, string match)
+        {
+            foreach (string s in strings)
+            {
+                if (s == match)
+                    return true;
+            }
+            return false;
+        }
 
         private bool Download_GameTDB_Pack()
         {
@@ -2893,20 +2992,10 @@ namespace WiiCoverDownloader
             return;
         }
 
-        private void Add_GameGube_Title_in_ComboBox(string file)
+        private void Add_GameGube_Title_in_ComboBox(string title_id)
         {
-            string exetension = Path.GetExtension(file);
-
-            if ((exetension.ToLower() != ".iso")) 
-                return;
-
-            string[] directories = file.Split(Path.DirectorySeparatorChar);           
-
-            if (directories.Length < 3)
-                return;
-
             RefreshProgressBar(GAMECUBE_GAMES_COUNT, TEMP_GAMECUBE_GAMES_COUNT);
-            add_to_TITLES_LIST(directories[directories.Length-2].ToUpper(), "gamecube_games");    
+            add_to_TITLES_LIST(title_id, "gamecube_games");
         }
 
         private void Add_WBFS_Title_in_ComboBox(string file)
@@ -3195,13 +3284,25 @@ namespace WiiCoverDownloader
                         if (directories.Length < 3)
                             return;
 
+                        string title = directories[directories.Length - 2];
+
+                        string gciso_name = directories[directories.Length - 1];
+
+                        if (gciso_name == "game.iso")
+                        {
+                            title = GCISO_TITLE(file);
+
+                            if (title == null)
+                                return;
+                        }
+
                         for (int i = 0; i < GameCubeGamesList.Count; i++)
                         {
-                            if (GameCubeGamesList[i].ID == directories[directories.Length - 2])
+                            if (GameCubeGamesList[i].ID == title)
                             {
                                 GAMECUBE_GAMES_COUNT++;
                                 if (PopulateComboBox)
-                                    Add_GameGube_Title_in_ComboBox(file);
+                                    Add_GameGube_Title_in_ComboBox(title);
                             }
                         }
                     }
