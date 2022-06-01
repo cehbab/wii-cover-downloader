@@ -42,8 +42,8 @@ namespace WiiCoverDownloader
         //sleep_Link                      = "http://wii-cover-downloader.googlecode.com/files/sleep.exe",
         //wbfs_file_Link                  = "http://wii-cover-downloader.googlecode.com/files/wbfs_file.exe",
 
-        new_7za920_Link                   = "https://github.com/cehbab/wii-cover-downloader/raw/master/7za920.exe",
-        new_tools_Link                    = "https://github.com/cehbab/wii-cover-downloader/raw/master/tools%20v3.zip";
+        new_7za920_Link                   = "https://github.com/cehbab/wii-cover-downloader/raw/master/Tools/7za920.exe",
+        new_tools_Link                    = "https://github.com/cehbab/wii-cover-downloader/raw/master/Tools/tools%20v3.zip";
 
         bool
         DOWNLOAD_OR_EXE_WORKING, TIME_OUT, USE_PROGRESS_BAR,
